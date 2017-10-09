@@ -32,7 +32,7 @@ ignore specific files or folders. Both sync and async API are provided.
 ## Installation
 Install package as dependency:
 ```shell
-npm install --save file-equal-content
+npm install --save file-duplicates
 ```
 
 
