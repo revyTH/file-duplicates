@@ -37,7 +37,7 @@ npm install --save file-equal-content
 
 
 ## Usage
-```shell
+```js
 var fd = require("file-duplicates");
 var fs = require("fs");
 var filePath = "path/to/file";
@@ -74,7 +74,7 @@ var paths = fs.findSync(filePath, [".*", "*.js"]);
 
 
 ## API
-```shell
+```js
 /**
  * Finds asynchronously the absolute paths of duplicated files of the target file or buffer in the specified directory.
  * @param {string or Buffer} pathOrBuffer - Path or buffer of the file to search.
@@ -83,7 +83,7 @@ var paths = fs.findSync(filePath, [".*", "*.js"]);
  * @param {function} [cb] - Callback of type function(err, result). If not provided a Promise will be returned instead.
  * @return {} - Callback or Promise fulfilled with an array of absolute paths to duplicated files.
  */
-function find(pathOrBuffer, dirPath, ignorePatterns, cb)
+function find(pathOrBuffer, dirPath, ignorePatterns, cb) { }
 
 
 /**
@@ -93,7 +93,7 @@ function find(pathOrBuffer, dirPath, ignorePatterns, cb)
  * @param {Array} [ignorePatterns] - An array of patterns that will be excluded from the search (e.g. ["*.", "node_modules", "*.txt", "path/to/file", "path/to/directory"]).
  * @return {Array} - An array of absolute paths to duplicated files.
  */
-function findSync(pathOrBuffer, dirPath, ignorePatterns) 
+function findSync(pathOrBuffer, dirPath, ignorePatterns) { } 
 ```
 
 
