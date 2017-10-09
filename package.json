@@ -24,6 +24,9 @@
   },
   "keywords": [
     "file",
+    "files",
+    "duplicate",
+    "duplicates",
     "folder",
     "Buffer",
     "equal",
@@ -32,6 +35,9 @@
     "find",
     "compare",
     "async",
-    "sync"
+    "sync",
+    "path",
+    "filesystem",
+    "fs"
   ]
 }
