@@ -1,0 +1,37 @@
+{
+  "name": "file-duplicates",
+  "version": "1.0.0",
+  "description": "Finds the absolute paths of duplicated files of the target file or buffer in the specified directory.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spinlud/file-duplicates.git"
+  },
+  "author": "Ludovico Fabbri",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spinlud/file-duplicates/issues"
+  },
+  "homepage": "https://github.com/spinlud/file-duplicates#readme",
+  "dependencies": {
+    "minimatch": "^3.0.4"
+  },
+  "engines": {
+    "node": ">=4.8.4"
+  },
+  "keywords": [
+    "file",
+    "folder",
+    "Buffer",
+    "equal",
+    "recursive",
+    "search",
+    "find",
+    "compare",
+    "async",
+    "sync"
+  ]
+}
