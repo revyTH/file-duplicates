@@ -1,6 +1,6 @@
 {
   "name": "file-duplicates",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Finds the absolute paths of duplicated files of the target file or buffer in the specified directory.",
   "main": "index.js",
   "scripts": {
