@@ -59,4 +59,6 @@ typings/
 
 .idea
 assets
+test.js
+test
 

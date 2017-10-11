@@ -2,7 +2,7 @@
 > During the development of a node app I had to check for potential duplicates of files uploaded by users. 
 I wrote this package to address this particular problem: given in input a file or buffer, it returns the absolute 
 paths to duplicated files starting from the specified directory (otherwise the working directory will be used as
-starting point). The comparison between files is done at byte level. It is possible to provide an array of patterns to
+starting point). The matching algorithm uses SHA-1 checksum to compare files, which gives extremely low probability of collisions. It is possible to provide an array of patterns to
 ignore specific files or folders. Both sync and async API are provided. 
 
 
@@ -76,7 +76,7 @@ var paths = fs.findSync(filePath, [".*", "*.js"]);
 ## API
 ```js
 /**
- * Finds asynchronously the absolute paths of duplicated files of the target file or buffer in the specified directory.
+ * Recursively search for duplicates of the target file or buffer in the specified directory, returning the corresponding absolute paths (ASYNC).
  * @param {string or Buffer} pathOrBuffer - Path or buffer of the file to search.
  * @param {string} [dirPath] - Directory which represents the starting point of the search. Default is the working directory.
  * @param {Array} [ignorePatterns] - An array of patterns that will be excluded from the search (e.g. ["*.", "node_modules", "*.txt", "path/to/file", "path/to/directory"]).
@@ -87,7 +87,7 @@ function find(pathOrBuffer, dirPath, ignorePatterns, cb) { }
 
 
 /**
- * Finds synchronously the absolute paths of duplicated files of the target file or buffer in the specified directory.
+ * Recursively search for duplicates of the target file or buffer in the specified directory, returning the corresponding absolute paths (SYNC).
  * @param {string or Buffer} pathOrBuffer - Path or buffer of the file to search.
  * @param {string} [dirPath] - Directory which represents the starting point of the search. Default is the working directory.
  * @param {Array} [ignorePatterns] - An array of patterns that will be excluded from the search (e.g. ["*.", "node_modules", "*.txt", "path/to/file", "path/to/directory"]).

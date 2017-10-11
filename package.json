@@ -1,7 +1,7 @@
 {
   "name": "file-duplicates",
-  "version": "1.0.1",
-  "description": "Finds the absolute paths of duplicated files of the target file or buffer in the specified directory.",
+  "version": "1.0.2",
+  "description": "Recursively search for duplicates of the target file or buffer in the specified directory, returning the corresponding absolute paths.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,11 +25,14 @@
   "keywords": [
     "file",
     "files",
+    "walk",
     "duplicate",
     "duplicates",
     "folder",
     "Buffer",
     "equal",
+    "checksum",
+    "crypto",
     "recursive",
     "search",
     "find",

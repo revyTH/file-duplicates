@@ -7,10 +7,15 @@
 
 var fs              = require("fs"),
     path            = require("path"),
+    crypto          = require("crypto"),
     minimatch       = require("minimatch");
 
 
 //region private
+
+function _generateSHA1digest(data) {
+    return crypto.createHash("sha1").update(data).digest("hex");
+}
 
 function _filter(files, dirPath, ignorePatterns) {
     files = files.map(function(f) { return path.join(dirPath, f) } );
@@ -39,7 +44,7 @@ function _filter(files, dirPath, ignorePatterns) {
 }
 
 
-function _find(buffer, dirPath, ignorePatterns, cb) {
+function _find(digest, dirPath, ignorePatterns, cb) {
 
     var result = [];
 
@@ -64,7 +69,7 @@ function _find(buffer, dirPath, ignorePatterns, cb) {
                 }
                 // if directory
                 if (stats.isDirectory()) {
-                    _find(buffer, filePath, ignorePatterns, function(err, res) {
+                    _find(digest, filePath, ignorePatterns, function(err, res) {
                         result = result.concat(res);
                         pending--;
                         if (pending === 0) {
@@ -74,8 +79,19 @@ function _find(buffer, dirPath, ignorePatterns, cb) {
                 }
                 // if file
                 else {
-                    fs.readFile(filePath, function(err, b){
-                        if (b.compare(buffer) === 0) {
+                    var hash = crypto.createHash("sha1");
+                    var stream = fs.createReadStream(filePath);
+
+                    stream.on("data", function(chunk) {
+                        hash.update(chunk);
+                    });
+
+                    stream.on("error", function(err) {
+                        return cb(err);
+                    });
+
+                    stream.on("end", function() {
+                        if (hash.digest("hex") === digest) {
                             // equal file found
                             result.push(filePath);
                         }
@@ -91,7 +107,7 @@ function _find(buffer, dirPath, ignorePatterns, cb) {
 }
 
 
-function _find_sync(buffer, dirPath, ignorePatterns) {
+function _find_sync(digest, dirPath, ignorePatterns) {
 
     var result = [];
     var files = fs.readdirSync(dirPath);
@@ -108,7 +124,7 @@ function _find_sync(buffer, dirPath, ignorePatterns) {
         }
         else {
             var fileBuffer = fs.readFileSync(filePath);
-            if (fileBuffer.compare(buffer) === 0) {
+            if (_generateSHA1digest(fileBuffer) === digest) {
                 result.push(filePath);
             }
         }
@@ -123,7 +139,7 @@ function _find_sync(buffer, dirPath, ignorePatterns) {
 //region public
 
 /**
- * Finds asynchronously the absolute paths of duplicated files of the target file or buffer in the specified directory.
+ * Recursively search for duplicates of the target file or buffer in the specified directory, returning the corresponding absolute paths (ASYNC).
  * @param {string or Buffer} pathOrBuffer - Path or buffer of the file to search.
  * @param {string} [dirPath] - Directory which represents the starting point of the search. Default is the working directory.
  * @param {Array} [ignorePatterns] - An array of patterns that will be excluded from the search (e.g. ["*.", "node_modules", "*.txt", "path/to/file", "path/to/directory"]).
@@ -192,7 +208,7 @@ function find(pathOrBuffer, dirPath, ignorePatterns, cb) {
                         reject(err);
                         return;
                     }
-                    _find(buffer, dirPath, ignorePatterns, function(err, res){
+                    _find(_generateSHA1digest(buffer), dirPath, ignorePatterns, function(err, res){
                         if (err) {
                             reject(err);
                         }
@@ -204,7 +220,7 @@ function find(pathOrBuffer, dirPath, ignorePatterns, cb) {
             }
             // file buffer
             else {
-                _find(pathOrBuffer, dirPath, ignorePatterns, function(err, res){
+                _find(_generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns, function(err, res){
                     if (err) {
                         reject(err);
                     }
@@ -223,19 +239,19 @@ function find(pathOrBuffer, dirPath, ignorePatterns, cb) {
                 if (err) {
                     return cb(err);
                 }
-                return _find(buffer, dirPath, ignorePatterns, cb);
+                return _find(_generateSHA1digest(buffer), dirPath, ignorePatterns, cb);
             });
         }
         // file buffer
         else {
-            return _find(pathOrBuffer, dirPath, ignorePatterns, cb);
+            return _find(_generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns, cb);
         }
     }
 }
 
 
 /**
- * Finds synchronously the absolute paths of duplicated files of the target file or buffer in the specified directory.
+ * Recursively search for duplicates of the target file or buffer in the specified directory, returning the corresponding absolute paths (SYNC).
  * @param {string or Buffer} pathOrBuffer - Path or buffer of the file to search.
  * @param {string} [dirPath] - Directory which represents the starting point of the search. Default is the working directory.
  * @param {Array} [ignorePatterns] - An array of patterns that will be excluded from the search (e.g. ["*.", "node_modules", "*.txt", "path/to/file", "path/to/directory"]).
@@ -280,7 +296,7 @@ function findSync(pathOrBuffer, dirPath, ignorePatterns) {
         return parsed;
     });
 
-    return _find_sync(pathOrBuffer, dirPath, ignorePatterns);
+    return _find_sync(_generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns);
 }
 
 //endregion
