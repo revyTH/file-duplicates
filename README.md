@@ -100,6 +100,7 @@ function findSync(pathOrBuffer, dirPath, ignorePatterns) { }
 ## Notes
 * If dirPath is not provided, the search will start at working directory level (the one returned by process.cwd() i.e. the directory from which node command is invoked).
 * I suggest to use always absolute paths. If you want to use relative paths, please make sure that they are relative to the directory specified as second argument or to the working directory (see above) if no directory is provided.
+* For big files I strongly suggest to use the async version which uses a stream to read files chunk by chunk (the sync version instead load the entire file into memory before computing the checksum). 
 
 
 ## License
