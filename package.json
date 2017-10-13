@@ -1,6 +1,6 @@
 {
   "name": "file-duplicates",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Recursively search for duplicates of the target file or buffer in the specified directory, returning the corresponding absolute paths.",
   "main": "index.js",
   "scripts": {

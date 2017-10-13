@@ -44,7 +44,7 @@ function _filter(files, dirPath, ignorePatterns) {
 }
 
 
-function _find(digest, dirPath, ignorePatterns, cb) {
+function _find(size, digest, dirPath, ignorePatterns, cb) {
 
     var result = [];
 
@@ -69,7 +69,7 @@ function _find(digest, dirPath, ignorePatterns, cb) {
                 }
                 // if directory
                 if (stats.isDirectory()) {
-                    _find(digest, filePath, ignorePatterns, function(err, res) {
+                    _find(size, digest, filePath, ignorePatterns, function(err, res) {
                         result = result.concat(res);
                         pending--;
                         if (pending === 0) {
@@ -79,27 +79,37 @@ function _find(digest, dirPath, ignorePatterns, cb) {
                 }
                 // if file
                 else {
-                    var hash = crypto.createHash("sha1");
-                    var stream = fs.createReadStream(filePath);
+                    // if equal size, compute checksum
+                    if (stats.size === size) {
+                        var hash = crypto.createHash("sha1");
+                        var stream = fs.createReadStream(filePath);
 
-                    stream.on("data", function(chunk) {
-                        hash.update(chunk);
-                    });
+                        stream.on("data", function(chunk) {
+                            hash.update(chunk);
+                        });
 
-                    stream.on("error", function(err) {
-                        return cb(err);
-                    });
+                        stream.on("error", function(err) {
+                            return cb(err);
+                        });
 
-                    stream.on("end", function() {
-                        if (hash.digest("hex") === digest) {
-                            // equal file found
-                            result.push(filePath);
-                        }
+                        stream.on("end", function() {
+                            if (hash.digest("hex") === digest) {
+                                // equal file found
+                                result.push(filePath);
+                            }
+                            pending--;
+                            if (pending === 0) {
+                                return cb(null, result);
+                            }
+                        });
+                    }
+                    // different size, go ahead
+                    else {
                         pending--;
                         if (pending === 0) {
                             return cb(null, result);
                         }
-                    });
+                    }
                 }
             });
         });
@@ -107,7 +117,7 @@ function _find(digest, dirPath, ignorePatterns, cb) {
 }
 
 
-function _find_sync(digest, dirPath, ignorePatterns) {
+function _find_sync(size, digest, dirPath, ignorePatterns) {
 
     var result = [];
     var files = fs.readdirSync(dirPath);
@@ -124,7 +134,7 @@ function _find_sync(digest, dirPath, ignorePatterns) {
         }
         else {
             var fileBuffer = fs.readFileSync(filePath);
-            if (_generateSHA1digest(fileBuffer) === digest) {
+            if (stats.size === size && _generateSHA1digest(fileBuffer) === digest) {
                 result.push(filePath);
             }
         }
@@ -203,12 +213,21 @@ function find(pathOrBuffer, dirPath, ignorePatterns, cb) {
         return new Promise(function(resolve, reject){
             // file path
             if (typeof pathOrBuffer === "string") {
-                fs.readFile(pathOrBuffer, function(err, buffer){
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    _find(_generateSHA1digest(buffer), dirPath, ignorePatterns, function(err, res){
+                var hash = crypto.createHash("sha1");
+                var stream = fs.createReadStream(pathOrBuffer);
+                var size = 0;
+
+                stream.on("data", function(chunk) {
+                    hash.update(chunk);
+                    size += chunk.length;
+                });
+
+                stream.on("error", function(err) {
+                    reject(err);
+                });
+
+                stream.on("end", function() {
+                    _find(size, hash.digest("hex"), dirPath, ignorePatterns, function(err, res){
                         if (err) {
                             reject(err);
                         }
@@ -220,7 +239,7 @@ function find(pathOrBuffer, dirPath, ignorePatterns, cb) {
             }
             // file buffer
             else {
-                _find(_generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns, function(err, res){
+                _find(pathOrBuffer.length, _generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns, function(err, res){
                     if (err) {
                         reject(err);
                     }
@@ -235,16 +254,26 @@ function find(pathOrBuffer, dirPath, ignorePatterns, cb) {
     else {
         // file path
         if (typeof pathOrBuffer === "string") {
-            fs.readFile(pathOrBuffer, function(err, buffer){
-                if (err) {
-                    return cb(err);
-                }
-                return _find(_generateSHA1digest(buffer), dirPath, ignorePatterns, cb);
+            var hash = crypto.createHash("sha1");
+            var stream = fs.createReadStream(pathOrBuffer);
+            var size = 0;
+
+            stream.on("data", function(chunk) {
+                hash.update(chunk);
+                size += chunk.length;
+            });
+
+            stream.on("error", function(err) {
+                return cb(err);
+            });
+
+            stream.on("end", function() {
+                return _find(size, hash.digest("hex"), dirPath, ignorePatterns, cb);
             });
         }
         // file buffer
         else {
-            return _find(_generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns, cb);
+            return _find(pathOrBuffer.length, _generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns, cb);
         }
     }
 }
@@ -296,7 +325,7 @@ function findSync(pathOrBuffer, dirPath, ignorePatterns) {
         return parsed;
     });
 
-    return _find_sync(_generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns);
+    return _find_sync(pathOrBuffer.length, _generateSHA1digest(pathOrBuffer), dirPath, ignorePatterns);
 }
 
 //endregion
