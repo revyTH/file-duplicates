@@ -1,6 +1,6 @@
 {
   "name": "file-duplicates",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Given a target file, recursively search for duplicated files.",
   "main": "index.js",
   "scripts": {
