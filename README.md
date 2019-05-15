@@ -1,9 +1,8 @@
 # file-duplicates
-> During the development of a node app I had to check for potential duplicates of files uploaded by users. 
-I wrote this package to address this particular problem: given in input a file or buffer, it returns the absolute 
+> Given in input a file or buffer, it returns the absolute 
 paths to duplicated files starting from the specified directory (otherwise the working directory will be used as
-starting point). The matching algorithm uses SHA-1 checksum to compare files, which gives extremely low probability of collisions. It is possible to provide an array of patterns to
-ignore specific files or folders. Both sync and async API are provided. 
+starting point). The matching algorithm uses SHA-1 checksum to compare files. It is possible to provide an array of patterns to
+ignore specific files or folders. Both sync and async API are available. 
 
 
 
@@ -98,9 +97,8 @@ function findSync(pathOrBuffer, dirPath, ignorePatterns) { }
 
 
 ## Notes
-* If dirPath is not provided, the search will start at working directory level (the one returned by process.cwd() i.e. the directory from which node command is invoked).
-* I suggest to use always absolute paths. If you want to use relative paths, please make sure that they are relative to the directory specified as second argument or to the working directory (see above) if no directory is provided.
-* For big files I strongly suggest to use the async version which uses a stream to read files chunk by chunk (the sync version instead load the entire file into memory before computing the checksum). 
+* If dirPath is not provided, the search will start at working directory level.
+* For big files the async api is recommended. 
 
 
 ## License

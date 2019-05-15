@@ -1,21 +1,21 @@
 {
   "name": "file-duplicates",
   "version": "1.0.3",
-  "description": "Recursively search for duplicates of the target file or buffer in the specified directory, returning the corresponding absolute paths.",
+  "description": "Given a target file, recursively search for duplicated files.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./node_modules/mocha/bin/mocha test/test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/spinlud/file-duplicates.git"
+    "url": "git+https://github.com/revyTH/file-duplicates.git"
   },
   "author": "Ludovico Fabbri",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/spinlud/file-duplicates/issues"
+    "url": "https://github.com/revyTH/file-duplicates/issues"
   },
-  "homepage": "https://github.com/spinlud/file-duplicates#readme",
+  "homepage": "https://github.com/revyTH/file-duplicates#readme",
   "dependencies": {
     "minimatch": "^3.0.4"
   },
@@ -42,5 +42,9 @@
     "path",
     "filesystem",
     "fs"
-  ]
+  ],
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
+  }
 }
